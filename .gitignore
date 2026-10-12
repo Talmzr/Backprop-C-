@@ -1,0 +1,8 @@
+# Build output (one subfolder per CMake preset; also holds the downloaded Catch2)
+build/
+
+# MNIST data files (M5)
+data/
+
+# Per-machine CMake presets, if ever added
+CMakeUserPresets.json

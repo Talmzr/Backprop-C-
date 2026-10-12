@@ -1,0 +1,45 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 25, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "architecture": { "value": "arm64", "strategy": "external" },
+      "toolset": { "value": "host=arm64", "strategy": "external" },
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "cl.exe"
+      }
+    },
+    {
+      "name": "debug",
+      "displayName": "Debug (leak report)",
+      "inherits": "base",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "asan",
+      "displayName": "ASan (AddressSanitizer)",
+      "inherits": "base",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug", "BACKPROP_ASAN": "ON" }
+    },
+    {
+      "name": "release",
+      "displayName": "Release (training runs)",
+      "inherits": "base",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    }
+  ],
+  "buildPresets": [
+    { "name": "debug", "displayName": "Debug (leak report)", "configurePreset": "debug" },
+    { "name": "asan", "displayName": "ASan (AddressSanitizer)", "configurePreset": "asan" },
+    { "name": "release", "displayName": "Release (training runs)", "configurePreset": "release" }
+  ],
+  "testPresets": [
+    { "name": "debug", "displayName": "Debug (leak report)", "configurePreset": "debug", "output": { "outputOnFailure": true } },
+    { "name": "asan", "displayName": "ASan (AddressSanitizer)", "configurePreset": "asan", "output": { "outputOnFailure": true } },
+    { "name": "release", "displayName": "Release (training runs)", "configurePreset": "release", "output": { "outputOnFailure": true } }
+  ]
+}

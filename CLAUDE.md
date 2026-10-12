@@ -30,7 +30,6 @@ Learning C++ is a secondary, welcome side effect. Performance is not a goal.
 
 - `CMakeLists.txt`, build configuration, VS Code configuration, and `.gitignore` (build output and MNIST data files stay out of Git).
 - The **test harness**: Catch2 wiring in CMake plus one example test showing the syntax. The harness is not the tests themselves.
-- Throwaway tool checks in M0 (a deliberate leak and a deliberate out-of-bounds write), deleted once they've proven the tools work.
 - The **MNIST file loader** (M5).
 - Possibly **PyTorch reference scripts** at M4/M5 for comparing gradients. Decide with the user when we get there.
 - The tracking files `PROGRESS.md` and `NOTES.md`.
@@ -109,7 +108,7 @@ Progress-based: no deadlines and no fixed pace. Move on when the "done when" con
 
 | # | Milestone | Done when |
 |---|---|---|
-| M0 | Setup: repo, CMake project, Catch2 harness, the three build configurations (see Tech stack), builds and runs in VS Code on Windows with MSVC. | An example test passes in every configuration, launched from VS Code. A clean run reports no leaks (no false alarms from Catch2 or other libraries). A deliberate leak fails the test run in Debug, and a deliberate out-of-bounds write fails it in ASan. `PROGRESS.md` and `NOTES.md` exist. Pushed to GitHub. |
+| M0 | Setup: repo, CMake project, Catch2 harness, the three build configurations (see Tech stack), builds and runs in VS Code on Windows with MSVC. | An example test passes in every configuration, launched from VS Code. A clean run reports no leaks (no false alarms from Catch2 or other libraries). `PROGRESS.md` and `NOTES.md` exist. Pushed to GitHub. |
 | M1a | Build the graph: `Value` node (data + grad), `+` and `*` via operator overloading, each node remembering its parents and the op that made it. A way to print or inspect the graph. | A small expression (e.g. `(a * b + c) * f`) builds the expected graph, and printing it shows the right nodes, values, and connections |
 | M1b | Backward: each op's local backward, topological sort (DFS), `backward()` walking the order in reverse. User writes the finite-difference gradient checker. | Gradients of the M1a expression, and of an expression where one node is used more than once, match hand calculation and the gradient checker |
 | M2 | More ops: negation, subtraction, division, power (constant exponent), `exp`, `log`, `tanh`, `relu`, and mixing with plain numbers (`a + 2.0`). | Gradient checks pass for every op, including a node used more than once |
