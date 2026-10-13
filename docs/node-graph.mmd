@@ -1,0 +1,15 @@
+flowchart RL
+    L["<b>L</b><br/>value: -8<br/>grad: 0<br/>op: *<br/>parents: e, f"]
+    e["<b>e</b> (no name in your code)<br/>value: 4<br/>grad: 0<br/>op: +<br/>parents: d, c"]
+    d["<b>d</b> (no name in your code)<br/>value: -6<br/>grad: 0<br/>op: *<br/>parents: a, b"]
+    a["<b>a</b><br/>value: 2<br/>grad: 0<br/>op: none<br/>parents: none"]
+    b["<b>b</b><br/>value: -3<br/>grad: 0<br/>op: none<br/>parents: none"]
+    c["<b>c</b><br/>value: 10<br/>grad: 0<br/>op: none<br/>parents: none"]
+    f["<b>f</b><br/>value: -2<br/>grad: 0<br/>op: none<br/>parents: none"]
+
+    L -- "points to" --> e
+    L -- "points to" --> f
+    e -- "points to" --> d
+    e -- "points to" --> c
+    d -- "points to" --> a
+    d -- "points to" --> b

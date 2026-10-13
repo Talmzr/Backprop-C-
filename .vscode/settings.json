@@ -1,4 +1,5 @@
 {
+  "cmake.sourceDirectory": "${workspaceFolder}/cmake",
   "cmake.useCMakePresets": "always",
   "cmake.options.statusBarVisibility": "visible",
   "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"

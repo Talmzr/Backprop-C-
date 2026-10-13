@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.25)
 project(Backprop LANGUAGES CXX)
 
+# This file lives in cmake/. Source files are addressed from the project root.
+cmake_path(GET CMAKE_CURRENT_SOURCE_DIR PARENT_PATH BACKPROP_ROOT)
+
 if(NOT MSVC)
   message(FATAL_ERROR "This project is set up for the MSVC compiler (see CLAUDE.md, Tech stack).")
 endif()
@@ -64,7 +67,9 @@ list(APPEND CMAKE_MODULE_PATH "${catch2_SOURCE_DIR}/extras")
 
 # ---- The program ------------------------------------------------------------
 
-add_executable(backprop Main.cpp)
+add_executable(backprop
+  "${BACKPROP_ROOT}/src/Main.cpp"
+)
 target_compile_options(backprop PRIVATE /W4)
 backprop_copy_asan_runtime(backprop)
 
@@ -74,7 +79,7 @@ backprop_copy_asan_runtime(backprop)
 enable_testing()
 
 add_executable(tests
-  tests/example_test.cpp
+  "${BACKPROP_ROOT}/tests/example_test.cpp"
 )
 target_compile_options(tests PRIVATE /W4)
 target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)

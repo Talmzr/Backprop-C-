@@ -32,7 +32,7 @@ Learning C++ is a secondary, welcome side effect. Performance is not a goal.
 - The **test harness**: Catch2 wiring in CMake plus one example test showing the syntax. The harness is not the tests themselves.
 - The **MNIST file loader** (M5).
 - Possibly **PyTorch reference scripts** at M4/M5 for comparing gradients. Decide with the user when we get there.
-- The tracking files `PROGRESS.md` and `NOTES.md`.
+- The tracking files `docs/PROGRESS.md` and `docs/NOTES.md`.
 
 ### Code Claude never writes
 
@@ -69,11 +69,11 @@ These are two different things:
 
 - Claude may run a CMake configure, build the project, run the tests, and run the program, e.g. to reproduce an error or to see a test failure, but **asks the user first, every time**, saying what it wants to run and why. A yes covers that one run, not later ones.
 - **Debugging build configuration Claude wrote.** Before it starts debugging its own CMake, preset, or VS Code configuration, Claude asks, and says up front what it plans to run. A yes covers that stated plan; anything beyond it needs a new ask.
-- Git belongs to the user: the user creates the repo, makes commits, and pushes. Changes to `PROGRESS.md` and `NOTES.md` are committed along with the code.
+- Git belongs to the user: the user creates the repo, makes commits, and pushes. Changes to `docs/PROGRESS.md` and `docs/NOTES.md` are committed along with the code.
 
 ## Tech stack
 
-The stack is a starting point and can change during the project. When something changes, record it in the Decisions log in `PROGRESS.md`.
+The stack is a starting point and can change during the project. When something changes, record it in the Decisions log in `docs/PROGRESS.md`.
 
 | Concern | Choice |
 |---|---|
@@ -108,7 +108,7 @@ Progress-based: no deadlines and no fixed pace. Move on when the "done when" con
 
 | # | Milestone | Done when |
 |---|---|---|
-| M0 | Setup: repo, CMake project, Catch2 harness, the three build configurations (see Tech stack), builds and runs in VS Code on Windows with MSVC. | An example test passes in every configuration, launched from VS Code. A clean run reports no leaks (no false alarms from Catch2 or other libraries). `PROGRESS.md` and `NOTES.md` exist. Pushed to GitHub. |
+| M0 | Setup: repo, CMake project, Catch2 harness, the three build configurations (see Tech stack), builds and runs in VS Code on Windows with MSVC. | An example test passes in every configuration, launched from VS Code. A clean run reports no leaks (no false alarms from Catch2 or other libraries). `docs/PROGRESS.md` and `docs/NOTES.md` exist. Pushed to GitHub. |
 | M1a | Build the graph: `Value` node (data + grad), `+` and `*` via operator overloading, each node remembering its parents and the op that made it. A way to print or inspect the graph. | A small expression (e.g. `(a * b + c) * f`) builds the expected graph, and printing it shows the right nodes, values, and connections |
 | M1b | Backward: each op's local backward, topological sort (DFS), `backward()` walking the order in reverse. User writes the finite-difference gradient checker. | Gradients of the M1a expression, and of an expression where one node is used more than once, match hand calculation and the gradient checker |
 | M2 | More ops: negation, subtraction, division, power (constant exponent), `exp`, `log`, `tanh`, `relu`, and mixing with plain numbers (`a + 2.0`). | Gradient checks pass for every op, including a node used more than once |
@@ -154,7 +154,7 @@ Raise these when they come up in code the user is working on, following "Reviews
 
 ## Tracking files
 
-### `PROGRESS.md` (written and kept up to date by Claude)
+### `docs/PROGRESS.md` (written and kept up to date by Claude)
 
 Claude Code starts every session without memory of the previous one. This file is how it knows where things stand. **Update it whenever something meaningful happens** (a step finished, a decision made, a problem found), not only at the end of a session, so a session that ends abruptly loses nothing. Keep it short and current, using this structure:
 
@@ -164,9 +164,9 @@ Claude Code starts every session without memory of the previous one. This file i
 - **Open problems / questions**
 - **Decisions log:** dated one-liners for design and tooling decisions, with the reason
 
-**If `PROGRESS.md` and this file disagree**, Claude doesn't pick one. It tells the user what each says and asks which holds.
+**If `docs/PROGRESS.md` and this file disagree**, Claude doesn't pick one. It tells the user what each says and asks which holds.
 
-### `NOTES.md` (the user's notes, written by Claude)
+### `docs/NOTES.md` (the user's notes, written by Claude)
 
 At the end of each milestone, ask the user for their takeaways and things to keep in mind. The user says them; Claude writes them down under a heading for that milestone.
 
@@ -175,13 +175,13 @@ At the end of each milestone, ask the user for their takeaways and things to kee
 ## Session workflow
 
 **At the start of a session:**
-1. Read `PROGRESS.md` (and `NOTES.md` if relevant). If `PROGRESS.md` doesn't exist yet, this is the first session: start M0.
+1. Read `docs/PROGRESS.md` (and `docs/NOTES.md` if relevant). If `docs/PROGRESS.md` doesn't exist yet, this is the first session: start M0.
 2. Summarize where things stand in 2–3 sentences.
 3. Propose the next step and confirm it with the user.
 
 **During the session:** guide, answer, and review per the rules above.
 
 **At the end of a session:**
-1. Make sure `PROGRESS.md` is up to date.
-2. If a milestone was completed, ask the user for takeaways and write them into `NOTES.md`.
+1. Make sure `docs/PROGRESS.md` is up to date.
+2. If a milestone was completed, ask the user for takeaways and write them into `docs/NOTES.md`.
 3. Remind the user to push to GitHub.

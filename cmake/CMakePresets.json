@@ -6,7 +6,7 @@
       "name": "base",
       "hidden": true,
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/${presetName}",
+      "binaryDir": "${sourceDir}/../build/${presetName}",
       "architecture": { "value": "arm64", "strategy": "external" },
       "toolset": { "value": "host=arm64", "strategy": "external" },
       "cacheVariables": {
