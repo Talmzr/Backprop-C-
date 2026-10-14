@@ -8,7 +8,7 @@ When it starts: first ask what the user already knows about backward passes and 
 
 ## Done
 
-- **M1a — Build the graph** (finished 2026-10-14; commit and push still to be confirmed). Everything is in `src/Main.cpp`, written by the user:
+- **M1a — Build the graph** (finished 2026-10-14, commit `5be74f1`, pushed). Everything is in `src/Main.cpp`, written by the user:
   - `enum class Operation { add, multiply, None }`.
   - `class Node`: private fields `value`, `PrevLayer` (a `const` vector of `std::shared_ptr<Node>`, the parents), `nodeop` (`const`), `Gradient`; one constructor taking operation, value and parents; four read functions (`get_value`, `get_gradient`, `get_operation`, `get_parents`).
   - `ValArithm(op, parent1, parent2)`: central arithmetic with a `switch`; throws `std::logic_error` for any other operation.
@@ -29,17 +29,24 @@ When it starts: first ask what the user already knows about backward passes and 
 
 ## Next step
 
-1. User commits and pushes M1a.
-2. Claude offered a review of the M1a code on 2026-10-14; the user has not answered. Do not review unless they say yes.
-3. Start M1b when the user says so. Its first practical step: `Node` and its functions move out of `Main.cpp` into their own header so tests can include them. The user picks the file name; Claude adds it to CMake.
+1. User commits and pushes the review fixes.
+2. Start M1b when the user says so. Its first practical step: `Node` and its functions move out of `Main.cpp` into their own header so tests can include them. The user picks the file name; Claude adds it to CMake.
+
+## Review of M1a (2026-10-14, requested by the user)
+
+Claude rebuilt `backprop` in `debug` and `asan` with the user's permission: no compiler warnings at `/W4`, correct output in both, no ASan errors. M1a is pushed (commit `5be74f1`). No bugs found. Points given to the user:
+
+- **Fixed by the user the same day (all four):** `get_parents()` now returns `const std::vector<...>&`; `Graph` and its two loop variables take `const std::shared_ptr<Node>&`; the constructor sets all four fields in its initializer list, in declaration order (the user also reordered the fields by size: vector, two doubles, enum); `using namespace std;` is removed and `std::` written out everywhere. Not rebuilt by Claude after these changes.
+- **Known limits, fine for now:** `Graph` prints a node once per path that reaches it (matters in M1b); the `switch` in `Graph` prints an empty operation for any enum member added later (matters in M2); nothing checks for a null pointer being passed to the operators or `Graph`.
+- **Style, left to the user:** mixed naming (`PrevLayer`, `Gradient`, `nodeop`, `ValArithm`, `Node_child`), uneven indentation, the unnecessary `if` in `Graph`.
+- **Not covered by any tool yet:** there are no tests for `Node`, and the leak report only runs inside the test program.
 
 ## Open problems / questions
 
 - **With private fields, backward needs a way to change another node's gradient.** Mentioned to the user in one line during M1a; to be designed by them in M1b.
-- **`Graph` prints a node once per path that reaches it.** Harmless in the M1a example, where no node is used twice. Told to the user; it matters in M1b.
-- **Points held back for a review** (C++ idioms, not bugs): `get_parents()` returns a copy of the vector; `Graph` takes its shared pointer by value; `using namespace std;` mixed with explicit `std::`; the hard-to-reach `if` around the first loop in `Graph`.
-- **No tests exist yet beyond the example test.** `backprop` and `tests` share no code, and VS Code's Testing panel is still untried.
-- **Neither memory checker has been seen catching anything** (see Decisions log, 2026-10-12). ARM64 support in MSVC ASan is recent. The leak gate becomes part of "done" from M1b on.
+- **VS Code's Testing panel is still untried**, and `backprop` and `tests` share no code yet.
+- **Neither memory checker has been seen catching anything** (see Decisions log, 2026-10-12). ARM64 ASan did run the program cleanly on 2026-10-14. The leak gate becomes part of "done" from M1b on.
+- **For M2:** the central `switch` design means each new operation touches the enum, `ValArithm`, the text `switch` in `Graph`, and an operator function. Claude can switch on a compiler warning for a `switch` that misses an enum member; offer it at the start of M2.
 - `docs/node-graph.mmd` is a Mermaid diagram of the example graph, made at the user's request.
 
 ## Folder layout

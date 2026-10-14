@@ -1,5 +1,4 @@
 #include <iostream>
-using namespace std;
 #include <vector>
 #include <memory>
 #include <stdexcept>
@@ -14,24 +13,22 @@ enum class Operation{add, multiply, None};
 
 class Node{
     public:
-        Node(Operation op, double val,const vector <std::shared_ptr <Node>>& Parents) : nodeop(op),PrevLayer(Parents){
-            Gradient =0;
-            value =val;
+        Node(Operation op, double val,const std::vector <std::shared_ptr <Node>>& Parents) : PrevLayer(Parents), value(val),Gradient(0),nodeop(op){
         }
 
         double get_value() const {return value;}
         double get_gradient() const {return Gradient;}
         Operation get_operation() const {return nodeop;}
-        vector <std::shared_ptr <Node>> get_parents() const {return PrevLayer;}
+        const std::vector <std::shared_ptr <Node>>& get_parents() const {return PrevLayer;}
 
 
 
 
     private:
-    double value;
-    const vector <std::shared_ptr <Node>> PrevLayer;
-    const Operation nodeop;
-    double Gradient; 
+        const std::vector <std::shared_ptr <Node>> PrevLayer;
+        double value;
+        double Gradient; 
+        const Operation nodeop;
 };
 
 
@@ -40,8 +37,8 @@ double ValArithm (Operation oparith,const std::shared_ptr <Node>& parent1,const 
 
     switch(oparith)
     {
-    case Operation::add:    return (parent1->get_value() + parent2->get_value());
-    case Operation::multiply:    return (parent1->get_value() * parent2->get_value()); 
+        case Operation::add:    return (parent1->get_value() + parent2->get_value());
+        case Operation::multiply:    return (parent1->get_value() * parent2->get_value()); 
     }
 
     throw std::logic_error("Unable to compute with no operation");
@@ -51,9 +48,9 @@ double ValArithm (Operation oparith,const std::shared_ptr <Node>& parent1,const 
     std::shared_ptr<Node> Node_child(Operation oper,const std::shared_ptr <Node>& parent1,const std::shared_ptr <Node>& parent2){
         
         double tempval = ValArithm(oper, parent1,parent2);
-        vector <std::shared_ptr <Node>> parents = {parent1 , parent2};
+        std::vector <std::shared_ptr <Node>> parents = {parent1 , parent2};
         
-        std::shared_ptr<Node> p = make_shared<Node>(oper,tempval, parents);
+        std::shared_ptr<Node> p = std::make_shared<Node>(oper,tempval, parents);
         return p;
     }
 
@@ -69,32 +66,33 @@ double ValArithm (Operation oparith,const std::shared_ptr <Node>& parent1,const 
 
     std::shared_ptr<Node> Node_Input(double value){
 
-        vector <std::shared_ptr<Node>> emp = {}; 
-        std::shared_ptr<Node> p = make_shared<Node>(Operation::None,value, emp);
+        std::vector <std::shared_ptr<Node>> emp = {}; 
+        std::shared_ptr<Node> p = std::make_shared<Node>(Operation::None,value, emp);
         return p;
 
 
     }
 
-    void Graph(std::shared_ptr<Node> node)
+    void Graph(const std::shared_ptr<Node>& node)
         {
             if ((node->get_parents()).size() > 0)
             {   
-                for (std::shared_ptr<Node> n : node->get_parents())
+                for (const std::shared_ptr<Node>& n : node->get_parents())
                 {
-                Graph(n);
+                    Graph(n);
                 }
             }
             std::string operation;
 
             switch(node->get_operation()){
-            case Operation::add:     operation = "add"; break;
-            case Operation::multiply: operation = "multiply"; break;
-            case Operation::None: operation  = "None"; break;
+                case Operation::add:     operation = "add"; break;
+                case Operation::multiply: operation = "multiply"; break;
+                case Operation::None: operation  = "None"; break;
             }
             std::cout << " Node: " << node << " Value: " << node->get_value() << " op: " << operation << " Parents: ";
-            for (std::shared_ptr<Node> j : node->get_parents()){
-            std::cout << j << " ";
+            
+            for (const std::shared_ptr<Node>& j : node->get_parents()){
+                std::cout << j << " ";
             } 
             std::cout << "\n";
 
