@@ -2,11 +2,21 @@
 
 ## Current milestone
 
-**M1b — Backward.** Not started. M1a was finished on 2026-10-14; the user has not yet said to begin M1b.
+**M2 — More operations.** Not started. M1b was finished on 2026-10-16; waiting for the user's M1b takeaways, the commit and push, and their go for M2.
 
-When it starts: first ask what the user already knows about backward passes and the chain rule on a graph (no derivative quiz), then fill in gaps and state "done".
+When M2 starts: ask what the user already knows first; offer to switch on the compiler warning for a `switch` that misses an enum member (see Open problems).
 
 ## Done
+
+- **M1b — Backward** (finished 2026-10-16; not yet committed). All engine code is in `src/node.h` (declarations) and `src/node.cpp` (definitions), written by the user; `src/Main.cpp` holds only `main`.
+  - `set_gradient(double)` adds to the gradient (`+=`); `set_value(double)` replaces the value (added for the checker).
+  - Backward rules chosen by operation, not stored closures: `gradient_p_addition` passes the node's gradient to each parent; `gradient_p_multiply` adds g·vⱼ for every parent, then subtracts g·vₙ for the parent itself.
+  - `topological(node, seen, order)`: DFS with an `std::unordered_set` of visited nodes, appending each node after its parents; marks a node seen when its visit ends.
+  - `backward(output)`: builds the order, seeds the output with 1, applies the rule to each node from the back of the order.
+  - `replay_network(output)`: recomputes every value in place from the inputs; `Gradient_checker(input, h, output)`: central difference using the replay, restores the original value exactly and replays once more. `get_inputs` collects the input nodes from an order (currently unused).
+  - Tests, all written by the user: `tests/backward_test.cpp` (the M1a expression; every input used twice; an intermediate node `d` used twice, including `d`'s own gradient) and `tests/Gradient_checker_test.cpp` (the checker against the reused-intermediate expression, tolerance 1e-8, h = 1e-4). Expected values hand-worked by the user, except the third test's, which Claude derived at the user's request.
+  - Verified: all six tests pass in Debug (so no leak reports) and under ASan (run by Claude at the user's request, 2026-10-16: 6/6, no AddressSanitizer errors).
+- **Where the user started in M1b, and what worked:** pictured backprop by layers; had never done DFS. Wanted the theory without examples or step-by-step, then to work out the code themselves; asked for worked examples only when stuck. Guiding questions ("what must be true about the node's gradient when you process it?") worked well. Watch for: range-`for` versus index loops, unsigned counters counting down, unsaved files, and VS Code's build target being `backprop` instead of `all`.
 
 - **M1a — Build the graph** (finished 2026-10-14, commit `5be74f1`, pushed). Everything is in `src/Main.cpp`, written by the user:
   - `enum class Operation { add, multiply, None }`.
@@ -29,8 +39,9 @@ When it starts: first ask what the user already knows about backward passes and 
 
 ## Next step
 
-1. User commits and pushes the review fixes.
-2. Start M1b when the user says so. Its first practical step: `Node` and its functions move out of `Main.cpp` into their own header so tests can include them. The user picks the file name; Claude adds it to CMake.
+1. Ask the user for M1b takeaways; write them into `docs/NOTES.md`.
+2. User commits and pushes M1b.
+3. Start M2 when the user says so.
 
 ## Review of M1a (2026-10-14, requested by the user)
 
@@ -43,10 +54,8 @@ Claude rebuilt `backprop` in `debug` and `asan` with the user's permission: no c
 
 ## Open problems / questions
 
-- **With private fields, backward needs a way to change another node's gradient.** Mentioned to the user in one line during M1a; to be designed by them in M1b.
-- **VS Code's Testing panel is still untried**, and `backprop` and `tests` share no code yet.
-- **Neither memory checker has been seen catching anything** (see Decisions log, 2026-10-12). ARM64 ASan did run the program cleanly on 2026-10-14. The leak gate becomes part of "done" from M1b on.
-- **For M2:** the central `switch` design means each new operation touches the enum, `ValArithm`, the text `switch` in `Graph`, and an operator function. Claude can switch on a compiler warning for a `switch` that misses an enum member; offer it at the start of M2.
+- **Neither memory checker has been seen catching anything** (see Decisions log, 2026-10-12). ARM64 ASan ran the program (2026-10-14) and all tests (2026-10-16) cleanly. The leak gate is part of "done" from M1b on.
+- **For M2:** the central `switch` design means each new operation touches the enum, `ValArithm`, the text `switch` in `graph`, `replay_network`, an operator function, and a backward rule plus its `if` in `backward`. Claude can switch on a compiler warning for a `switch` that misses an enum member; offer it at the start of M2.
 - `docs/node-graph.mmd` is a Mermaid diagram of the example graph, made at the user's request.
 
 ## Folder layout
@@ -80,4 +89,9 @@ Chosen by the user on 2026-10-12.
 - 2026-10-12: `/W4` on the project's own targets, warnings not treated as errors.
 - 2026-10-12: `.vscode` stays tracked in Git. Reason: it now holds project settings with no machine-specific paths.
 - 2026-10-12: Folder layout split into `cmake/`, `docs/`, `src/` (user's choice, see "Folder layout"). `CLAUDE.md` is the one exception, kept at the root so it still loads.
+- 2026-10-16: Backward rules are chosen from each node's operation (`if`s calling one function per operation), not stored in each node as a closure. User's design; `CLAUDE.md` core decisions updated to match.
+- 2026-10-16: The M1a expression is not separately checked with the gradient checker. User's decision: the reused-node expression the checker test uses contains the same operations and shape.
+- 2026-10-16: Node values became settable (`set_value`), so the checker can nudge inputs and replay the graph in place. Note for M3: weight updates can use the same setter.
+- 2026-10-14: The user asked Claude to move their existing code from `Main.cpp` into `node.h` ("there is no value in it"), after Claude had said its rules keep it out of their source files. Done verbatim, no new code. Reason: purely mechanical. Claude still does not write or change the user's code itself.
+- 2026-10-14: Engine code is shared through an `engine` CMake target (INTERFACE, include directory `src/`), linked by both `backprop` and `tests`. Reason: tests need `#include "node.h"`; one target keeps the include path and later sources in one place.
 - 2026-10-12: M0 closed with tests run from the command line rather than VS Code's Testing panel. Reason: the user wanted to move on; the panel gets tried with the first real tests.

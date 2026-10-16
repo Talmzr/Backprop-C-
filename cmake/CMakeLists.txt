@@ -65,12 +65,24 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(Catch2)
 list(APPEND CMAKE_MODULE_PATH "${catch2_SOURCE_DIR}/extras")
 
+# ---- The engine -------------------------------------------------------------
+# The autograd code, compiled once and shared by the program and the tests.
+# Linking to "engine" also lets a file write #include "node.h".
+# Add each new engine .cpp file to this list.
+
+add_library(engine STATIC
+  "${BACKPROP_ROOT}/src/node.cpp"
+)
+target_include_directories(engine PUBLIC "${BACKPROP_ROOT}/src")
+target_compile_options(engine PRIVATE /W4)
+
 # ---- The program ------------------------------------------------------------
 
 add_executable(backprop
   "${BACKPROP_ROOT}/src/Main.cpp"
 )
 target_compile_options(backprop PRIVATE /W4)
+target_link_libraries(backprop PRIVATE engine)
 backprop_copy_asan_runtime(backprop)
 
 # ---- Tests ------------------------------------------------------------------
@@ -80,9 +92,11 @@ enable_testing()
 
 add_executable(tests
   "${BACKPROP_ROOT}/tests/example_test.cpp"
+  "${BACKPROP_ROOT}/tests/backward_test.cpp"
+  "${BACKPROP_ROOT}/tests/Gradient_checker_test.cpp"
 )
 target_compile_options(tests PRIVATE /W4)
-target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
+target_link_libraries(tests PRIVATE engine Catch2::Catch2WithMain)
 backprop_copy_asan_runtime(tests)
 
 # Registers every TEST_CASE with CTest, which is what VS Code's Testing panel

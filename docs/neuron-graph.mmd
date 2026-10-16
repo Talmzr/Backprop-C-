@@ -1,0 +1,28 @@
+flowchart LR
+    x1["x1<br/>input data"]:::data
+    w1["w1<br/>weight"]:::param
+    x2["x2<br/>input data"]:::data
+    w2["w2<br/>weight"]:::param
+    b["b<br/>bias"]:::param
+
+    subgraph neuron ["one neuron = five nodes"]
+        m1["m1 = w1 * x1"]:::op
+        m2["m2 = w2 * x2"]:::op
+        s["s = m1 + m2"]:::op
+        z["z = s + b"]:::op
+        out["out = tanh(z)"]:::op
+    end
+
+    w1 --> m1
+    x1 --> m1
+    w2 --> m2
+    x2 --> m2
+    m1 --> s
+    m2 --> s
+    s --> z
+    b --> z
+    z --> out
+
+    classDef data fill:#dbeafe,stroke:#3b82f6,color:#111
+    classDef param fill:#fef3c7,stroke:#d97706,color:#111
+    classDef op fill:#f3f4f6,stroke:#6b7280,color:#111
