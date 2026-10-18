@@ -2,14 +2,18 @@
 
 ## Current milestone
 
-**M2 — More operations.** Not started. M1b was finished on 2026-10-16; waiting for the user's M1b takeaways, the commit and push, and their go for M2.
-
-When M2 starts: ask what the user already knows first; offer to switch on the compiler warning for a `switch` that misses an enum member (see Open problems).
+**M3 — Neuron, layer, MLP; XOR.** Not started. Waiting for the M1b and M2 takeaways, the commit and push, and the user's go.
 
 ## Done
 
-- **M1b — Backward** (finished 2026-10-16; not yet committed). All engine code is in `src/node.h` (declarations) and `src/node.cpp` (definitions), written by the user; `src/Main.cpp` holds only `main`.
-  - `set_gradient(double)` adds to the gradient (`+=`); `set_value(double)` replaces the value (added for the checker).
+- **M2 — More operations** (finished 2026-10-19; not yet committed). All operations written by the user:
+  - **New operations:** subtract, divide, negate (unary `operator-`), power (now the named function `power(node, exponent)`, stored as a second parent: an input node that never receives a gradient), `exp`, `log`, `tanh`, `relu`. Each has an enum member, a creating function, a case in `graph`, a backward rule `gradient_p_*` with its `if` in `backward`, and a branch in `replay_network`, which now uses explicit first and second parents.
+  - **Mixing with numbers:** eight overloads for `+ − * /`, number on either side, each wrapping the number with `Node_Input`. `1.0 - a` and `1.0 / a` were briefly reversed; fixed.
+  - **Bugs found and fixed along the way:** copy-paste of the wrong `Operation` in `log` and `relu`; the replay accumulating subtract and divide over the parents; relu's replay comparing the pointer, not the value, and always ending at 0; negate passing a single pointer where the constructor wants a vector.
+  - **Explained on request:** what `exp`, `tanh`, `relu` are and why the project needs them; tanh versus sigmoid and the other activations; why a network without activations collapses to a straight line (and why that can't do XOR); why the checker returns 0 for computed nodes such as `d`; why `h = 1e-8` gives visible rounding error when the output is large (use about 1e-5).
+  - **Tests:** `tests/m2_operations_test.cpp`, written by Claude at the user's request: every operation and all eight number-mixing overloads gradient-checked (h = 1e-5, absolute 1e-7 or relative 1e-6), both relu branches, value checks for the mixing operators, and an intermediate node used several times through the new operations. All 17 tests pass in Debug (no leak reports) and under ASan, run by Claude on 2026-10-19. A first run crashed because of a bug in Claude's test helper (a Catch2 combined matcher returned from a function keeps references to destroyed parts); fixed, not an engine problem.
+- **M1b — Backward** (finished 2026-10-16, commit `d779a3b`, pushed). All engine code is in `src/node.h` (declarations) and `src/node.cpp` (definitions), written by the user; `src/Main.cpp` holds only `main`.
+  - `add_to_gradient(double)` (first named `set_gradient`) adds to the gradient (`+=`); `set_value(double)` replaces the value (added for the checker).
   - Backward rules chosen by operation, not stored closures: `gradient_p_addition` passes the node's gradient to each parent; `gradient_p_multiply` adds g·vⱼ for every parent, then subtracts g·vₙ for the parent itself.
   - `topological(node, seen, order)`: DFS with an `std::unordered_set` of visited nodes, appending each node after its parents; marks a node seen when its visit ends.
   - `backward(output)`: builds the order, seeds the output with 1, applies the rule to each node from the back of the order.
@@ -39,9 +43,9 @@ When M2 starts: ask what the user already knows first; offer to switch on the co
 
 ## Next step
 
-1. Ask the user for M1b takeaways; write them into `docs/NOTES.md`.
-2. User commits and pushes M1b.
-3. Start M2 when the user says so.
+1. Ask for the M1b and M2 takeaways together; write them into `docs/NOTES.md`.
+2. User commits and pushes M2.
+3. Start M3 when the user says so (first ask what they already know).
 
 ## Review of M1a (2026-10-14, requested by the user)
 
@@ -55,6 +59,7 @@ Claude rebuilt `backprop` in `debug` and `asan` with the user's permission: no c
 ## Open problems / questions
 
 - **Neither memory checker has been seen catching anything** (see Decisions log, 2026-10-12). ARM64 ASan ran the program (2026-10-14) and all tests (2026-10-16) cleanly. The leak gate is part of "done" from M1b on.
+- **Power** was declared as `operator^`, which binds more loosely than `+` and `*`; on 2026-10-19 the user replaced it with a named function `power(node, exponent)`. Resolved. Note: the exponent is an input node, so `get_inputs` lists it too; checking it numerically would disagree with `backward`, which gives it 0 by design.
 - **For M2:** the central `switch` design means each new operation touches the enum, `ValArithm`, the text `switch` in `graph`, `replay_network`, an operator function, and a backward rule plus its `if` in `backward`. Claude can switch on a compiler warning for a `switch` that misses an enum member; offer it at the start of M2.
 - `docs/node-graph.mmd` is a Mermaid diagram of the example graph, made at the user's request.
 
@@ -89,6 +94,7 @@ Chosen by the user on 2026-10-12.
 - 2026-10-12: `/W4` on the project's own targets, warnings not treated as errors.
 - 2026-10-12: `.vscode` stays tracked in Git. Reason: it now holds project settings with no machine-specific paths.
 - 2026-10-12: Folder layout split into `cmake/`, `docs/`, `src/` (user's choice, see "Folder layout"). `CLAUDE.md` is the one exception, kept at the root so it still loads.
+- 2026-10-19: Claude may write tests when the user asks (user's decision: writing the M2 tests had no value for them). `CLAUDE.md` updated. First case: `tests/m2_operations_test.cpp`.
 - 2026-10-16: Backward rules are chosen from each node's operation (`if`s calling one function per operation), not stored in each node as a closure. User's design; `CLAUDE.md` core decisions updated to match.
 - 2026-10-16: The M1a expression is not separately checked with the gradient checker. User's decision: the reused-node expression the checker test uses contains the same operations and shape.
 - 2026-10-16: Node values became settable (`set_value`), so the checker can nudge inputs and replay the graph in place. Note for M3: weight updates can use the same setter.

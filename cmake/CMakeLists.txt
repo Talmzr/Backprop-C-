@@ -94,6 +94,7 @@ add_executable(tests
   "${BACKPROP_ROOT}/tests/example_test.cpp"
   "${BACKPROP_ROOT}/tests/backward_test.cpp"
   "${BACKPROP_ROOT}/tests/Gradient_checker_test.cpp"
+  "${BACKPROP_ROOT}/tests/m2_operations_test.cpp"
 )
 target_compile_options(tests PRIVATE /W4)
 target_link_libraries(tests PRIVATE engine Catch2::Catch2WithMain)

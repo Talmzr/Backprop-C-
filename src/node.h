@@ -7,10 +7,11 @@
 #include <string>
 #include <unordered_set>
 #include <ranges>
+#include <cmath>
 
 
 
-enum class Operation{add, multiply, None};
+enum class Operation{add, multiply, subtract, divide, negate, power, exponent, log, tanh,relu, None};
 
 
 
@@ -24,7 +25,7 @@ class Node{
         Operation get_operation() const;
         const std::vector <std::shared_ptr <Node>>& get_parents() const;
 
-        void set_gradient(double newGradient);
+        void add_to_gradient(double newGradient);
         void set_value(double newvalue);
 
 
@@ -49,13 +50,49 @@ double ValArithm (Operation oparith,const std::shared_ptr <Node>& parent1,const 
 
     std::shared_ptr<Node> operator*(const std::shared_ptr<Node>& parent1, const std::shared_ptr<Node>& parent2);
 
+    std::shared_ptr<Node> operator-(const std::shared_ptr<Node>& parent1, const std::shared_ptr<Node>& parent2);
+
+    std::shared_ptr<Node> operator/(const std::shared_ptr<Node>& parent1, const std::shared_ptr<Node>& parent2);
+
+    std::shared_ptr<Node> operator-(const std::shared_ptr<Node>& node); //negate
+
+    std::shared_ptr<Node> power(const std::shared_ptr<Node>& node, double exponent);
+
+    std::shared_ptr<Node> exp(const std::shared_ptr<Node>& node);
+
+    std::shared_ptr<Node> log(const std::shared_ptr<Node>& node);
+
+    std::shared_ptr<Node> tanh(const std::shared_ptr<Node>& node);
+
+    std::shared_ptr<Node> relu(const std::shared_ptr<Node>& node);
+
+    std::shared_ptr<Node> operator+(const std::shared_ptr<Node>& parent1, double number);
+    std::shared_ptr<Node> operator-(const std::shared_ptr<Node>& parent1, double number);
+    std::shared_ptr<Node> operator*(const std::shared_ptr<Node>& parent1, double number);
+    std::shared_ptr<Node> operator/(const std::shared_ptr<Node>& parent1, double number);
+    std::shared_ptr<Node> operator+(double number,const std::shared_ptr<Node>& parent1);
+    std::shared_ptr<Node> operator-(double number,const std::shared_ptr<Node>& parent1);
+    std::shared_ptr<Node> operator*(double number,const std::shared_ptr<Node>& parent1);
+    std::shared_ptr<Node> operator/(double number,const std::shared_ptr<Node>& parent1);
+
+
+
+
     std::shared_ptr<Node> Node_Input(double value);
 
     void graph(const std::shared_ptr<Node>& node);
 
     void gradient_p_addition(const std::shared_ptr<Node>& node);
-
     void gradient_p_multiply(const std::shared_ptr<Node>& node);
+    void gradient_p_subtract(const std::shared_ptr<Node>& node);
+    void gradient_p_divide(const std::shared_ptr<Node>& node);
+    void gradient_p_negate(const std::shared_ptr<Node>& node);
+    void gradient_p_power(const std::shared_ptr<Node>& node);
+    void gradient_p_exponent(const std::shared_ptr<Node>& node);
+    void gradient_p_log(const std::shared_ptr<Node>& node);
+    void gradient_p_tanh(const std::shared_ptr<Node>& node);
+    void gradient_p_relu(const std::shared_ptr<Node>& node);
+
 
     void topological(const std::shared_ptr<Node>& node, std::unordered_set<std::shared_ptr<Node>>& seennodes, std::vector<std::shared_ptr<Node>>& topoarray);
 

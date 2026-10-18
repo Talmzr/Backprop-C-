@@ -15,10 +15,10 @@ TEST_CASE("Gradient Checker")
     std::shared_ptr<Node> d = a*b;
     std::shared_ptr<Node> l = (a*b + d)*f  + (a*c + f)*d;    
 
-    a->set_gradient(Gradient_checker(a, 0.0001, l)); 
-    b->set_gradient(Gradient_checker(b, 0.0001, l)); 
-    c->set_gradient(Gradient_checker(c, 0.0001, l)); 
-    f->set_gradient(Gradient_checker(f, 0.0001, l));
+    a->add_to_gradient(Gradient_checker(a, 0.0001, l)); 
+    b->add_to_gradient(Gradient_checker(b, 0.0001, l)); 
+    c->add_to_gradient(Gradient_checker(c, 0.0001, l)); 
+    f->add_to_gradient(Gradient_checker(f, 0.0001, l));
 
     REQUIRE_THAT(a->get_gradient(), Catch::Matchers::WithinAbs(-42.0, 1e-8));
     REQUIRE_THAT(b->get_gradient(), Catch::Matchers::WithinAbs(8.0, 1e-8));

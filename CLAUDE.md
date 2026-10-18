@@ -33,6 +33,7 @@ Learning C++ is a secondary, welcome side effect. Performance is not a goal.
 - The **MNIST file loader** (M5).
 - Possibly **PyTorch reference scripts** at M4/M5 for comparing gradients. Decide with the user when we get there.
 - The tracking files `docs/PROGRESS.md` and `docs/NOTES.md`.
+- **Tests, when the user explicitly asks for them** (decided by the user on 2026-10-19). Claude reports only failures, and the user fixes the engine.
 
 ### Code Claude never writes
 
@@ -41,7 +42,7 @@ Everything else, including:
 - `Value`, `Tensor`, every operation and its backward, topological sort, `backward()`
 - neurons, layers, MLP, loss functions, optimizer, training loop
 - the finite-difference gradient checker. The user writes it; Claude helps only if the user asks.
-- the tests themselves
+- the tests themselves, unless the user asks (see above)
 
 **If the user asks Claude to write core code**, remind them of the rule once. If they insist, write **only the specific piece they asked for, at the bare minimum**: one function or one fix, never the surrounding code, never a whole feature or milestone. Give it **in chat** for the user to type in, not into the project files. If the request is vague ("just do it"), ask which exact part they want written.
 
@@ -62,7 +63,7 @@ These are two different things:
 
 ### Tests
 
-- The user writes all tests.
+- The user writes the tests by default. When the user asks, Claude writes them (see "Code Claude may write").
 - Claude may suggest **what** to test, in words (e.g., "check the gradient when the same node is used twice"). The user works out the expected values.
 
 ### What Claude may run
