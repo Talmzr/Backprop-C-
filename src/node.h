@@ -8,6 +8,7 @@
 #include <unordered_set>
 #include <ranges>
 #include <cmath>
+#include <random>
 
 
 
@@ -26,6 +27,7 @@ class Node{
         const std::vector <std::shared_ptr <Node>>& get_parents() const;
 
         void add_to_gradient(double newGradient);
+        void reset_gradient();
         void set_value(double newvalue);
 
 
@@ -103,4 +105,8 @@ double ValArithm (Operation oparith,const std::shared_ptr <Node>& parent1,const 
     double replay_network(const std::shared_ptr<Node>& node);
     
     double Gradient_checker(std::shared_ptr<Node>& input, double h, const std::shared_ptr<Node>& output);
+
+
+
+
 

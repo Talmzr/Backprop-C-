@@ -15,6 +15,7 @@
     const std::vector <std::shared_ptr <Node>>& Node::get_parents() const {return PrevLayer;}
 
     void Node::add_to_gradient(double newGradient) {Gradient += newGradient;}
+    void Node::reset_gradient(){Gradient = 0;}
     void Node::set_value(double newvalue) {value = newvalue;}
 
 
@@ -461,6 +462,8 @@ double ValArithm (Operation oparith,const std::shared_ptr <Node>& parent1,const 
         }
 
 
+
+   
 
 
 

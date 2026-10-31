@@ -72,6 +72,7 @@ list(APPEND CMAKE_MODULE_PATH "${catch2_SOURCE_DIR}/extras")
 
 add_library(engine STATIC
   "${BACKPROP_ROOT}/src/node.cpp"
+  "${BACKPROP_ROOT}/src/neuron.cpp"
 )
 target_include_directories(engine PUBLIC "${BACKPROP_ROOT}/src")
 target_compile_options(engine PRIVATE /W4)

@@ -2,11 +2,18 @@
 
 ## Current milestone
 
-**M3 — Neuron, layer, MLP; XOR.** Not started. Waiting for the M1b and M2 takeaways, the commit and push, and the user's go.
+**M3 — Neuron, layer, MLP; XOR.** Started 2026-10-19.
+
+- **Where the user started:** pictured a neuron as `a*w + b` growing with the layers; no picture yet of layers or the network in node terms; knew MSE and gradient descent in principle, not their implementation. Claude explained neuron, layer, MLP, MSE, the training step, gradient reset, graph lifetime per step, initialization and symmetry, settable weights.
+- **User's design (revised 2026-10-22):** each neuron holds its bias and the weights of its *incoming* connections, from the previous layer (first plan was outgoing weights). Its output is currently built from an `inputs` vector of (previous output, weight) pairs. The neuron does not keep the previous layer's values; the graph does.
+- **Code so far (2026-10-22):** `Node::reset_gradient()` in `node.cpp`; the neuron code moved by the user into `src/neuron.h` / `src/neuron.cpp` (added to the `engine` library in CMake): `class Neuron` (fields: `weights`, `value`, `bias`); `inputs_sum(inputs, weights)` builds the weighted sum as a chain of node `*` and `+` (index bug fixed with `back()`) and collects the weight pointers; `neuron_creator(inputs)` draws a random bias from a `static std::mt19937(42)`, builds `tanh(sum + bias)` and returns a `shared_ptr<Neuron>`. Earlier versions cut the graph (`double` sums, `Z` as a fresh input); fixed.
+- **Decided 2026-10-23:** fresh graph every forward pass (see Decisions log). `neuron_recompute`, which wrote plain numbers into the existing output node, is to be replaced by computing the output from nodes each time.
+- **Raised, not yet decided:** `neuron_creator` both creates a neuron (new bias) and computes its output; training needs creating once and computing every step. Who creates each neuron's incoming weight nodes, and their starting values (random, and settable for M4); right now they arrive inside `inputs` from the caller. The output neuron's activation.
+- **Not started:** layer, MLP, MSE loss, the training loop (forward, reset, backward, update), the XOR run in Release, tests (gradient check of a small network's loss, loss decreasing, many steps for the leak check).
 
 ## Done
 
-- **M2 — More operations** (finished 2026-10-19; not yet committed). All operations written by the user:
+- **M2 — More operations** (finished 2026-10-19, commit `182000d`, pushed). All operations written by the user:
   - **New operations:** subtract, divide, negate (unary `operator-`), power (now the named function `power(node, exponent)`, stored as a second parent: an input node that never receives a gradient), `exp`, `log`, `tanh`, `relu`. Each has an enum member, a creating function, a case in `graph`, a backward rule `gradient_p_*` with its `if` in `backward`, and a branch in `replay_network`, which now uses explicit first and second parents.
   - **Mixing with numbers:** eight overloads for `+ − * /`, number on either side, each wrapping the number with `Node_Input`. `1.0 - a` and `1.0 / a` were briefly reversed; fixed.
   - **Bugs found and fixed along the way:** copy-paste of the wrong `Operation` in `log` and `relu`; the replay accumulating subtract and divide over the parents; relu's replay comparing the pointer, not the value, and always ending at 0; negate passing a single pointer where the constructor wants a vector.
@@ -43,9 +50,8 @@
 
 ## Next step
 
-1. Ask for the M1b and M2 takeaways together; write them into `docs/NOTES.md`.
-2. User commits and pushes M2.
-3. Start M3 when the user says so (first ask what they already know).
+1. The user separates creating a neuron from computing its output, and decides where the weights are created.
+2. Then the layer and the network, the loss, and the training loop.
 
 ## Review of M1a (2026-10-14, requested by the user)
 
@@ -94,6 +100,9 @@ Chosen by the user on 2026-10-12.
 - 2026-10-12: `/W4` on the project's own targets, warnings not treated as errors.
 - 2026-10-12: `.vscode` stays tracked in Git. Reason: it now holds project settings with no machine-specific paths.
 - 2026-10-12: Folder layout split into `cmake/`, `docs/`, `src/` (user's choice, see "Folder layout"). `CLAUDE.md` is the one exception, kept at the root so it still loads.
+- 2026-10-23: Training builds a fresh graph on every forward pass (dynamic graph): weights and biases are persistent nodes owned by the neurons; every other node is rebuilt each step and freed with the step's loss. Rejected: building the graph once and replaying it each step (static graph). Reason (user's decision, after comparing both): simpler, flexible in batch size and data, keeps the gradient checker's replay independent of training; its allocation cost largely disappears with M4's tensors.
+- 2026-10-22: Each neuron holds the weights of its incoming connections (from the previous layer), not its outgoing ones. User's design change.
+- 2026-10-22: The random generator for starting values is a `static` local in `neuron_creator` (seed 42), so each neuron draws different numbers. Known limits, accepted by the user for now: the sequence is shared by every network in a program, and the seed can only be changed in the code. Revisit only if it becomes a problem (for example by moving the generator into the network).
 - 2026-10-19: Claude may write tests when the user asks (user's decision: writing the M2 tests had no value for them). `CLAUDE.md` updated. First case: `tests/m2_operations_test.cpp`.
 - 2026-10-16: Backward rules are chosen from each node's operation (`if`s calling one function per operation), not stored in each node as a closure. User's design; `CLAUDE.md` core decisions updated to match.
 - 2026-10-16: The M1a expression is not separately checked with the gradient checker. User's decision: the reused-node expression the checker test uses contains the same operations and shape.
