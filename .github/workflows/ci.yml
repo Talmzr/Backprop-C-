@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  linux:
+    name: Linux ${{ matrix.compiler }} (ASan + UBSan + LSan)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - compiler: gcc
+            cxx: g++
+          - compiler: clang
+            cxx: clang++
+    env:
+      CXX: ${{ matrix.cxx }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Ninja
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+
+      - name: Configure
+        working-directory: cmake
+        run: cmake --preset linux-asan
+
+      - name: Build
+        working-directory: cmake
+        run: cmake --build --preset linux-asan
+
+      - name: Test
+        working-directory: cmake
+        run: ctest --preset linux-asan
+
+  windows:
+    name: Windows MSVC (debug heap leak check)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up the MSVC developer environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Configure
+        working-directory: cmake
+        run: cmake --preset debug
+
+      - name: Build
+        working-directory: cmake
+        run: cmake --build --preset debug
+
+      - name: Test
+        working-directory: cmake
+        run: ctest --preset debug

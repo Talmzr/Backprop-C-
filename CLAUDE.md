@@ -84,6 +84,7 @@ The stack is a starting point and can change during the project. When something 
 | Numbers | `double` everywhere, which keeps finite-difference gradient checks precise |
 | Build configurations | Three, set up by Claude in M0. **Debug:** tests and stepping through code, with CRT leak reporting on. **ASan:** AddressSanitizer for out-of-bounds access and use-after-free. **Release:** training runs (M3+); Eigen in particular is very slow in Debug. ASan gets its own configuration because it doesn't mix with the CRT leak report, with `/RTC` (which CMake's default MSVC Debug flags include), or with incremental linking. Its runtime DLL must also be findable when tests are launched from VS Code. |
 | Tests | Catch2 v3, pulled in with CMake `FetchContent`, pinned to a release tag |
+| CI | GitHub Actions on every push: Linux (GCC and Clang) under ASan + UBSan + LSan, and Windows (MSVC x64) Debug with the CRT leak check. CMake also supports GCC and Clang, with `linux-*` presets; MSVC remains the local compiler. Added 2026-11-07. |
 | Linear algebra | **Eigen 5.0.x**, from M4 onward, pulled in with `FetchContent` and pinned to a release tag; the storage and arithmetic inside `Tensor` |
 | Reference (optional) | Python + PyTorch (CPU, in `float64` to match the engine's `double`) for comparing gradients at M4/M5 |
 | Version control | Git; push to GitHub (`https://github.com/Talmzr/Backprop-C-.git`) at the end of each session. GitHub is the only backup: the project folder is kept outside OneDrive on purpose. |

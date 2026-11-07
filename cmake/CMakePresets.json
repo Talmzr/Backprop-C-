@@ -11,7 +11,8 @@
       "toolset": { "value": "host=arm64", "strategy": "external" },
       "cacheVariables": {
         "CMAKE_CXX_COMPILER": "cl.exe"
-      }
+      },
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" }
     },
     {
       "name": "debug",
@@ -30,16 +31,47 @@
       "displayName": "Release (training runs)",
       "inherits": "base",
       "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "linux-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/../build/${presetName}",
+      "condition": { "type": "notEquals", "lhs": "${hostSystemName}", "rhs": "Windows" }
+    },
+    {
+      "name": "linux-debug",
+      "displayName": "Linux Debug",
+      "inherits": "linux-base",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "linux-asan",
+      "displayName": "Linux ASan + UBSan + LSan",
+      "inherits": "linux-base",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug", "BACKPROP_ASAN": "ON" }
+    },
+    {
+      "name": "linux-release",
+      "displayName": "Linux Release",
+      "inherits": "linux-base",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
     }
   ],
   "buildPresets": [
     { "name": "debug", "displayName": "Debug (leak report)", "configurePreset": "debug" },
     { "name": "asan", "displayName": "ASan (AddressSanitizer)", "configurePreset": "asan" },
-    { "name": "release", "displayName": "Release (training runs)", "configurePreset": "release" }
+    { "name": "release", "displayName": "Release (training runs)", "configurePreset": "release" },
+    { "name": "linux-debug", "displayName": "Linux Debug", "configurePreset": "linux-debug" },
+    { "name": "linux-asan", "displayName": "Linux ASan + UBSan + LSan", "configurePreset": "linux-asan" },
+    { "name": "linux-release", "displayName": "Linux Release", "configurePreset": "linux-release" }
   ],
   "testPresets": [
     { "name": "debug", "displayName": "Debug (leak report)", "configurePreset": "debug", "output": { "outputOnFailure": true } },
     { "name": "asan", "displayName": "ASan (AddressSanitizer)", "configurePreset": "asan", "output": { "outputOnFailure": true } },
-    { "name": "release", "displayName": "Release (training runs)", "configurePreset": "release", "output": { "outputOnFailure": true } }
+    { "name": "release", "displayName": "Release (training runs)", "configurePreset": "release", "output": { "outputOnFailure": true } },
+    { "name": "linux-debug", "displayName": "Linux Debug", "configurePreset": "linux-debug", "output": { "outputOnFailure": true } },
+    { "name": "linux-asan", "displayName": "Linux ASan + UBSan + LSan", "configurePreset": "linux-asan", "output": { "outputOnFailure": true } },
+    { "name": "linux-release", "displayName": "Linux Release", "configurePreset": "linux-release", "output": { "outputOnFailure": true } }
   ]
 }
