@@ -50,6 +50,7 @@
 
 ## Next step
 
+0. (2026-11-09) M3 work resumes on branch `m3-neuron`, brought up to date with `main` and with `neuron.h`/`neuron.cpp` restored from `dd38082`; Claude re-adds `neuron.cpp` to CMake there. CI runs on that branch too and will fail until the neuron code compiles; the README badge shows `main` only.
 1. The user separates creating a neuron from computing its output, and decides where the weights are created.
 2. Then the layer and the network, the loss, and the training loop.
 
@@ -101,6 +102,7 @@ Chosen by the user on 2026-10-12.
 - 2026-10-12: `.vscode` stays tracked in Git. Reason: it now holds project settings with no machine-specific paths.
 - 2026-10-12: Folder layout split into `cmake/`, `docs/`, `src/` (user's choice, see "Folder layout"). `CLAUDE.md` is the one exception, kept at the root so it still loads.
 - 2026-11-07: The build is cross-platform: MSVC stays the compiler for local work; CMake now also supports GCC and Clang (warnings `-Wall -Wextra`; the asan option adds UBSan and, on Linux, LeakSanitizer), with `linux-*` presets. GitHub Actions (`.github/workflows/ci.yml`) runs the tests on every push: Linux GCC and Clang under ASan + UBSan + LSan, and Windows MSVC x64 in Debug with the CRT leak check. The MSVC-only `FATAL_ERROR` is gone. Reason: the repository should build for reviewers on any platform. User's request; written by Claude (build configuration).
+- 2026-11-07: First CI run (commit `717a52a`) passed: 17/17 tests on Linux GCC and Clang under ASan + UBSan + LSan, and on Windows MSVC x64 Debug. Warnings left for the user: `-Wswitch` on `ValArithm`'s switch (node.cpp line 24) and `-Wrange-loop-construct` on the copying loop variable in `get_inputs` (node.cpp line 344).
 - 2026-11-07: `main` must always build. The unfinished M3 neuron/layer code (commit `dd38082`) moves to branch `m3-neuron`; on `main` it is removed and `neuron.cpp` is taken out of CMake. Re-add it to CMake when M3 work continues on the branch. Claude wrote `README.md` at the user's request (not engine code); its example was compiled and run against the engine.
 - 2026-10-23: Training builds a fresh graph on every forward pass (dynamic graph): weights and biases are persistent nodes owned by the neurons; every other node is rebuilt each step and freed with the step's loss. Rejected: building the graph once and replaying it each step (static graph). Reason (user's decision, after comparing both): simpler, flexible in batch size and data, keeps the gradient checker's replay independent of training; its allocation cost largely disappears with M4's tensors.
 - 2026-10-22: Each neuron holds the weights of its incoming connections (from the previous layer), not its outgoing ones. User's design change.

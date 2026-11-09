@@ -1,6 +1,6 @@
 # Backprop: an autograd engine from scratch in C++
 
-[![CI](https://github.com/Talmzr/Backprop-C-/actions/workflows/ci.yml/badge.svg)](https://github.com/Talmzr/Backprop-C-/actions/workflows/ci.yml)
+[![CI](https://github.com/Talmzr/Backprop-C-/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Talmzr/Backprop-C-/actions/workflows/ci.yml)
 
 A small reverse-mode automatic differentiation engine, written from scratch in C++20 with no autodiff or machine-learning libraries. Every number in a calculation becomes a node in a graph; calling `backward()` on the result computes the gradient of that result with respect to every node, by applying the chain rule backwards through the graph.
 
